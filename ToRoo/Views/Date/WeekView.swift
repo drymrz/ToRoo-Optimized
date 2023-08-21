@@ -61,7 +61,7 @@ struct WeekView: View {
                         
                     }
                     .onAppear{
-                        healthStore.fetchSleepAnalysisData(weekStore.weeks[1].dates.first!, weekStore.weeks[1].dates.last!)
+                        healthStore.fetchSleepAnalysisData(weekStore.weeks[1].dates.first!, weekStore.weeks[2].dates[0])
                         
                     }
                     .frame(maxWidth: .infinity)

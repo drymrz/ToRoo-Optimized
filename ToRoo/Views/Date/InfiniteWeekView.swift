@@ -11,17 +11,13 @@ struct InfiniteWeekView: View {
     @EnvironmentObject var weekStore: WeekStore
     @EnvironmentObject var healthStore: SleepStore
 
-//    @State var tasks: [Task] = MockTasks().all()
-
     var body: some View {
-                        VStack {
-                            WeekHeaderView()
-                            WeeksTabView() { week in
-                                WeekView(week: week).environmentObject(healthStore)
-                            }
-                        }
-        
-        
+        VStack {
+            WeekHeaderView()
+            WeeksTabView() { week in
+                WeekView(week: week)
+            }
+        }
     }
 }
 

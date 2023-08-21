@@ -9,31 +9,15 @@ import SwiftUI
 
 struct SleepEfficiency: View {
     @State private var showingPopover = false
-    @ObservedObject var healthStore: SleepStore
+    @EnvironmentObject var healthStore: SleepStore
     @EnvironmentObject var weekStore: WeekStore
-    let dayChart: String
-    let monthChart: String
-    let yearChart: String
-    private var startOfOpeningHours: Date
-    private var endOfOpeningHours: Date
-    var filteredData: [SleepEntry] = []
+    @State var dayChart: String = ""
+    @State var monthChart: String = ""
+    @State var yearChart: String = ""
+    @State private var startOfOpeningHours: Date = Date()
+    @State private var endOfOpeningHours: Date = Date()
+    @State var filteredData: [SleepEntry] = []
 //    var sleepEfficiency: Double
-    
-
-    
-    init(healthStore: SleepStore, weekStore: WeekStore) {
-        self.healthStore = healthStore
-        self.dayChart = weekStore.selectedDate.toString(format: "dd")
-        self.monthChart = weekStore.selectedDate.toString(format: "MM")
-        self.yearChart = weekStore.selectedDate.toString(format: "yyyy")
-        self.startOfOpeningHours = date(year: Int(yearChart)!, month: Int(monthChart)!, day: Int(dayChart)!, hour: 00, minutes: 00)
-        self.endOfOpeningHours = date(year: Int(yearChart)!, month: Int(monthChart)!, day: Int(dayChart)!, hour: 23, minutes: 59)
-        self.filteredData = healthStore.sleepData.filter { entry in
-            let isWithinOpeningHours = entry.startDate >= self.startOfOpeningHours && entry.endDate <= self.endOfOpeningHours
-            return isWithinOpeningHours
-        }
-    }
-
     
     
     var body: some View {
@@ -87,6 +71,16 @@ struct SleepEfficiency: View {
                         }.frame(height: 155)
                     }
                 }
+            }
+        }.onAppear{
+            self.dayChart = weekStore.selectedDate.toString(format: "dd")
+            self.monthChart = weekStore.selectedDate.toString(format: "MM")
+            self.yearChart = weekStore.selectedDate.toString(format: "yyyy")
+            self.startOfOpeningHours = date(year: Int(yearChart)!, month: Int(monthChart)!, day: Int(dayChart)!, hour: 00, minutes: 00)
+            self.endOfOpeningHours = date(year: Int(yearChart)!, month: Int(monthChart)!, day: Int(dayChart)!, hour: 23, minutes: 59)
+            self.filteredData = healthStore.sleepData.filter { entry in
+                let isWithinOpeningHours = entry.startDate >= self.startOfOpeningHours && entry.endDate <= self.endOfOpeningHours
+                return isWithinOpeningHours
             }
         }
     

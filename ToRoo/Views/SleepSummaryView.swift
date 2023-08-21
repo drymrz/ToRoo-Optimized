@@ -11,8 +11,8 @@ import HealthKit
 
 struct SleepSummaryView: View {
     
-    @ObservedObject var healthStore: SleepStore
-    @ObservedObject var weekStore: WeekStore
+    @EnvironmentObject var healthStore: SleepStore
+    @EnvironmentObject var weekStore: WeekStore
     
     
     var body: some View {
@@ -20,26 +20,22 @@ struct SleepSummaryView: View {
         ScrollView(.vertical){
             VStack(alignment: .leading){
                 InfiniteWeekView()
-                    .environmentObject(weekStore)
-                    .environmentObject(healthStore)
-                
                 VStack{
-                    TimeBarChartView(healthStore: healthStore, weekStore: weekStore, selectedDay: weekStore.selectedDate, sleepData: healthStore.sleepData)
+                    TimeBarChartView(selectedDay: weekStore.selectedDate, sleepData: healthStore.sleepData)
                         .padding()
                 }
                 .frame(maxWidth: .infinity)
                 .background(.gray.opacity(0.2))
                 .cornerRadius(10)
-                
-                OneDimensionalBarChartView(healthStore: healthStore, weekStore: weekStore, data: [], selectedDay: weekStore.selectedDate)
-                SleepEfficiency(healthStore: healthStore, weekStore: weekStore)
+
+                OneDimensionalBarChartView()
+                SleepEfficiency()
                     .padding(.top, 20)
-                WeeklyReportView(healthStore: healthStore)
+//                WeeklyReportView()
             }.padding([.leading,.trailing], 10)
             //request access healthStore
         }
         .navigationBarBackButtonHidden(true)
-
         
     }
     

@@ -11,6 +11,8 @@ import SwiftUI
 struct ToRooApp: App {
 //    let persistenceController = PersistenceController.shared
     @AppStorage("isFirstOpenApp") var isFirstOpenApp: Bool = true
+    @StateObject var healthStore = SleepStore()
+    @StateObject var weekStore: WeekStore = WeekStore()
     
     func onCompleteOnBoarding() {
         isFirstOpenApp = false
@@ -18,14 +20,11 @@ struct ToRooApp: App {
 
     var body: some Scene {
         WindowGroup {
-//            if isFirstOpenApp {
-//                OnboardingView(onComplete: onCompleteOnBoarding)
-//            } else {
                 ContentView()
+                .environmentObject(healthStore)
+                .environmentObject(weekStore)
                 .preferredColorScheme(.light)
             }
-           
-//                .environment(\.managedObjectContext, persistenceController.container.viewContext)
 //        }
     }
 }

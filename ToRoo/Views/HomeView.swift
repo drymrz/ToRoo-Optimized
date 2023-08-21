@@ -9,8 +9,8 @@ import SwiftUI
 //import UserNotifications
 
 struct HomeView: View {
-    @ObservedObject var healthStore: SleepStore
-    @ObservedObject var weekStore: WeekStore
+    @EnvironmentObject var healthStore: SleepStore
+    @EnvironmentObject var weekStore: WeekStore
     
     @State private var customAlertInfo = false
     
@@ -22,7 +22,7 @@ struct HomeView: View {
         .repeatForever(autoreverses: true)
     }
     @State private var rotationDegrees = 0.0
-    @State var moving = false
+    @State var isMoving = false
     @State private var selectedDate = Date()
     var notify = NotificationHandler()
     
@@ -52,16 +52,19 @@ struct HomeView: View {
                         .font(.sfRoundedBlack(fontSize: 32))
                         .padding(.bottom, 20)
                     Spacer().frame(minHeight: 10.0, idealHeight: 48.0, maxHeight: 48.0)
-                    Image(CharacterStateView(healthStore: healthStore, weekStore: weekStore, selectedDay: Date(), sleepData: healthStore.sleepData).imageState())
+                    Image(CharacterStateViewModel(selectedDay: Date(), sleepStage: SleepStages.InBedStage.rawValue, sleepData: healthStore.sleepData, startOfOpeningHours: Date().startOfDay, endOfOpeningHours: Date().endOfDay).imageState())
                         .resizable()
                         .scaledToFit()
                         .frame(width: 318, height: 219)
                         .shadow(radius: 25, y: 10)
-                        .offset(y: moving ? -60: -50)
+                        .offset(y: isMoving ? -60: -50)
                         .onAppear{
                             withAnimation(animation){
-                                moving = true
+                                isMoving = true
                             }
+                        }
+                        .onAppear {
+                            healthStore.fetchSleepAnalysisData(Date().startOfDay, Date().endOfDay)
                         }
                 }
             }.offset(y: 45)
@@ -98,22 +101,12 @@ struct HomeView: View {
                 .background(
                     withAnimation(){
                         NavigationLink("Move to summary",isActive: $isDetailViewActive) {
-                            SleepSummaryView(healthStore: healthStore, weekStore: weekStore)
+                            SleepSummaryView()
                         }
                     }
                     
                 )
                 
-            }
-            .onAppear() {
-                if SleepFilteringFunc.calculateTotal(sleepData: healthStore.sleepData, selectedDay: Date()) < 25200 {
-                    notify.schedulerNotif( type: "date",  title: "Daily Toroo Reminder", body: "Your sleep means to me. Take care of me, please",notifHour: 12)
-                } else {
-                    notify.schedulerNotif( type: "date",  title: "Daily Toroo Reminder", body: "Congrats, you nailed the sleep and took care of me today!",notifHour: 12)
-                }
-                
-                notify.schedulerNotif(type: "date", title: "Daily Toroo Recap", body: "Stay informed with a friendly nudge from ToRoo as it provides a delightful recap of your sleep status from the previous day.", notifHour: 9)
-                healthStore.requestAuthorization()
             }
             .background(LinearGradient(colors: [Color(hex: "#BFA0C7"), Color(hex: "#38177D")], startPoint: UnitPoint(x: 0.5, y: 0),
                                        endPoint: UnitPoint(x: 0.5, y: 1)))
@@ -130,9 +123,3 @@ struct HomeView: View {
         }
     }
 }
-//
-//struct HomeView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        HomeView(healthStore: SleepStore(), weekStore: WeekStore())
-//    }
-//}

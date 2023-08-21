@@ -9,15 +9,15 @@ import SwiftUI
 import Charts
 
 struct TimeBarChartView: View {
-    @ObservedObject var healthStore: SleepStore
-    @ObservedObject var weekStore: WeekStore
+    @EnvironmentObject var weekStore: WeekStore
+    @EnvironmentObject var healthStore: SleepStore
     @State var isSheetPresented = false
     var selectedDay: Date
     var sleepData: [SleepEntry]
     
     var body: some View {
-        let totalDuration = SleepFilteringFunc.calculateTotal(sleepData: sleepData, selectedDay: selectedDay)
-        let totalInBed = SleepFilteringFunc.calculateInBed(sleepData: sleepData, selectedDay: selectedDay)
+//        let totalDuration = SleepFilteringFunc.calculateTotal(sleepData: sleepData, selectedDay: selectedDay)
+//        let totalInBed = SleepFilteringFunc.calculateInBed(sleepData: sleepData, selectedDay: selectedDay)
         
         if healthStore.sleepData.isEmpty {
             Text("No Sleep Data today")
@@ -30,15 +30,15 @@ struct TimeBarChartView: View {
                         Text("TIME ASLEEP")
                             .font(.sfRoundedRegular(fontSize: 16))
                         
-                        if totalDuration != 0 || totalInBed != 0 {
-                            Text("\(healthStore.formatDuration(totalInBed != 0 ? totalInBed : totalDuration))")
-                                .font(.sfRoundedBold(fontSize: 32))
-                                .foregroundColor(Color("PrimaryColor"))
-                        } else {
-                            Text("No Data")
-                                .font(.sfRoundedBold(fontSize: 32))
-                                .foregroundColor(Color("PrimaryColor"))
-                        }
+//                        if totalDuration != 0 || totalInBed != 0 {
+//                            Text("\(healthStore.formatDuration(totalDuration != 0 ? totalDuration : totalInBed))")
+//                                .font(.sfRoundedBold(fontSize: 32))
+//                                .foregroundColor(Color("PrimaryColor"))
+//                        } else {
+//                            Text("No Data")
+//                                .font(.sfRoundedBold(fontSize: 32))
+//                                .foregroundColor(Color("PrimaryColor"))
+//                        }
                     }
                     
                     Spacer()
@@ -56,10 +56,9 @@ struct TimeBarChartView: View {
                             SleepStageSheetView()
                         }
                 }
-                EventChart(events: healthStore.sleepData.filter { entry in
-                    entry.startDate >= SleepFilteringFunc.startOfOpeningHours(selectedDate: selectedDay) && entry.endDate <= SleepFilteringFunc.endOfOpeningHours(selectedDate: selectedDay) && entry.sleepStages != "Unspecified" && entry.sleepStages != "In Bed"},
-                           chartXScaleRangeStart: SleepFilteringFunc.startOfOpeningHours(selectedDate: selectedDay),
-                           chartXScaleRangeEnd: SleepFilteringFunc.endOfOpeningHours(selectedDate: selectedDay))
+                EventChart(events: healthStore.sleepData,
+                           chartXScaleRangeStart: weekStore.selectedDate.startOfDay,
+                           chartXScaleRangeEnd: weekStore.selectedDate.endOfDay)
             }
         }   
         

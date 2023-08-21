@@ -7,22 +7,22 @@
 
 import Foundation
 
-public enum HKCategoryValueSleepAnalysis : Int {
-    case InBed
-    
-    case asleepUnspecified
-    
-    case awake
-    
-    case asleepCore
-    
-    case asleepDeep
-    
-    case asleepREM
-}
-
 func date(year: Int, month: Int, day: Int = 1, hour: Int = 0, minutes: Int = 0, seconds: Int = 0) -> Date {
     Calendar.current.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minutes, second: seconds)) ?? Date()
+}
+
+func calculatePreviousDate(_ currentDate: Date) -> Date {
+    let modifiedDate: Date = Calendar.current.date(byAdding: .day, value: -7, to: currentDate)!
+    return modifiedDate
+}
+
+enum SleepStages: String {
+    case InBedStage = "In Bed"
+    case AwakeStage
+    case REMStage
+    case DeepStage
+    case CoreStage
+    case UnspecifiedStage
 }
 
 struct SleepEntry: Identifiable, Equatable{

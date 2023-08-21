@@ -35,12 +35,19 @@ struct WeekView: View {
                                 .size(width: 52, height: 55)
                                 .padding(.top, -4)
                                 .foregroundColor(week.dates[i] == week.referenceDate ? Color("SecondaryColor") : .white)
-                            if( Date() < Date(timeIntervalSinceNow: 86400)){
-                                Image(CharacterStateView(healthStore: healthStore, weekStore: weekStore, selectedDay: week.dates[i], sleepData: healthStore.sleepData).imageState())
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 40)
-                            }
+                            Image(
+                                CharacterStateViewModel(
+                                    selectedDay: week.dates[i],
+                                    sleepStage: SleepStages.InBedStage.rawValue,
+                                    sleepData: healthStore.sleepData,
+                                    startOfOpeningHours:week.dates[i].startOfDay,
+                                    endOfOpeningHours: week.dates[i].endOfDay
+                                )
+                                .imageState()
+                            )
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40)
                         }
                         
                     
@@ -53,30 +60,12 @@ struct WeekView: View {
                             weekStore.selectedDate = week.dates[i]
                         
                     }
+                    .onAppear{
+                        healthStore.fetchSleepAnalysisData(weekStore.weeks[1].dates.first!, weekStore.weeks[1].dates.last!)
+                        
+                    }
                     .frame(maxWidth: .infinity)
-                
-                
-                    
-
             }
         }
     }
 }
-
-//struct WeekView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        WeekView(week: .init(index: 1, dates:
-//                                [
-//                                    Date().yesterday.yesterday.yesterday,
-//                                    Date().yesterday.yesterday,
-//                                    Date().yesterday,
-//                                    Date(),
-//                                    Date().tomorrow,
-//                                    Date().tomorrow.tomorrow,
-//                                    Date().tomorrow.tomorrow.tomorrow
-//                                ],
-//                             referenceDate: Date()))
-//        .environmentObject(WeekStore())
-//
-//    }
-//}

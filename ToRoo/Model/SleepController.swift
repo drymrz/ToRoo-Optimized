@@ -16,67 +16,60 @@ class SleepStore: ObservableObject {
     init() {
         if HKHealthStore.isHealthDataAvailable() {
             healthStore = HKHealthStore()
+        }else{
+            print("HealthKit Not Available")
         }
     }
-    
-    func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
-    
-    func formatDuration(_ duration: TimeInterval) -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .abbreviated
-        formatter.allowedUnits = [.hour, .minute]
-        return formatter.string(from: duration) ?? ""
-    }
-    
+
     func requestAuthorization() {
         let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
         healthStore?.requestAuthorization(toShare: nil, read: [sleepType]) { success, error in
             if error != nil {
-                print("Request auth for sleeping data can't ")
+                print("Error Authorizing \(String(describing: error))")
                 return
             }
-            
-            if success {
-                // Authorization granted, fetch sleep analysis data
-                
-                print("berhasil request")
-                self.fetchSleepAnalysis()
-            } else {
-                print("gagal request healthkit")
-                // Authorization denied
-            }    }
+            else if success {
+                // Both authorization granted or not still call success block
+                // Refer: https://developer.apple.com/documentation/healthkit/hkauthorizationstatus
+                print("Success Authorizing")
+                self.fetchSleepAnalysisData(calculatePreviousDate(Date()), Date())
+            }
+        }
     }
     
-    func fetchSleepAnalysis() {
-        
+    func fetchSleepAnalysisData(_ startDate: Date, _ endDate: Date) {
         guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
             // Sleep analysis not available
             print("Sleep analysis not available")
             return
         }
         
-        let query = HKSampleQuery(sampleType: sleepType, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { query, results, error in
+        let startDate = startDate
+        let endDate = endDate
+        
+        let predicate = NSPredicate(
+            format: "startDate >= %@ AND endDate <= %@",
+            startDate as NSDate,
+            endDate as NSDate
+        )
+
+        let query = HKSampleQuery(
+            sampleType: sleepType,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: nil
+        ) { query, results, error in
             if error != nil {
                 // Handle error
                 return
             }
             
             if let sleepSamples = results as? [HKCategorySample] {
-                // Process sleep samples
                 self.processSleepSamples(sleepSamples)
             }
         }
-        
-        healthStore?.execute(query)
+        self.healthStore?.execute(query)
     }
-    
-    
-    
     
     func processSleepSamples(_ samples: [HKCategorySample]) {
         var sleepData: [SleepEntry] = []
@@ -85,35 +78,31 @@ class SleepStore: ObservableObject {
             let startDate = sample.startDate
             let endDate = sample.endDate
 
-            
             // Determine the sleep quality based on the value of the sample
             let sleepStages: String
             switch sample.value {
-            case HKCategoryValueSleepAnalysis.InBed.rawValue:
-                sleepStages = "In Bed"
-            case HKCategoryValueSleepAnalysis.awake.rawValue:
-                sleepStages = "Awake"
-            case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
-                sleepStages = "REM"
-            case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
-                sleepStages = "Deep"
-            case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
-                sleepStages = "Core"
-            default:
-                sleepStages = "Unspecified"
+                case HKCategoryValueSleepAnalysis.inBed.rawValue:
+                    sleepStages = "In Bed"
+                case HKCategoryValueSleepAnalysis.awake.rawValue:
+                    sleepStages = "Awake"
+                case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
+                    sleepStages = "REM"
+                case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
+                    sleepStages = "Deep"
+                case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
+                    sleepStages = "Core"
+                default:
+                    sleepStages = "Unspecified"
             }
             
             // Calculate the duration of the sleep sample
             let duration = endDate.timeIntervalSince(startDate)
 
-            
-            
-            
             // Create a SleepEntry object and add it to the sleepData array
             let sleepEntry = SleepEntry(id: UUID(), startDate: startDate, endDate: endDate, sleepStages: sleepStages, duration: duration)
             
             sleepData.append(sleepEntry)
-//            print(sleepEntry)
+            print(sleepEntry)
         }
         
         DispatchQueue.main.async {
@@ -121,10 +110,7 @@ class SleepStore: ObservableObject {
             self.sleepData = sleepData
         }
     }
-    
-    
-    
-    
+ 
 }
 
 

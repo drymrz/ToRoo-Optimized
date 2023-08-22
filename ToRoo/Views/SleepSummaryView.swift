@@ -31,9 +31,8 @@ struct SleepSummaryView: View {
                 OneDimensionalBarChartView()
                 SleepEfficiency()
                     .padding(.top, 20)
-//                WeeklyReportView()
+                WeeklyReportView()
             }.padding([.leading,.trailing], 10)
-            //request access healthStore
         }
         .navigationBarBackButtonHidden(true)
         

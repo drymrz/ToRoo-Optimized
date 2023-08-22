@@ -110,6 +110,13 @@ class SleepStore: ObservableObject {
             self.sleepData = sleepData
         }
     }
+    
+    func formatDuration(_ duration: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .abbreviated
+        formatter.allowedUnits = [.hour, .minute]
+        return formatter.string(from: duration) ?? ""
+    }
  
 }
 

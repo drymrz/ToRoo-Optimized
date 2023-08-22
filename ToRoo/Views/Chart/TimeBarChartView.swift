@@ -16,8 +16,8 @@ struct TimeBarChartView: View {
     var sleepData: [SleepEntry]
     
     var body: some View {
-//        let totalDuration = SleepFilteringFunc.calculateTotal(sleepData: sleepData, selectedDay: selectedDay)
-//        let totalInBed = SleepFilteringFunc.calculateInBed(sleepData: sleepData, selectedDay: selectedDay)
+        let totalDuration = SleepFilter.calculateTotal(sleepData: sleepData, selectedDay: selectedDay)
+        let totalInBed = SleepFilter.calculateInBed(sleepData: sleepData, selectedDay: selectedDay)
         
         if healthStore.sleepData.isEmpty {
             Text("No Sleep Data today")
@@ -30,15 +30,15 @@ struct TimeBarChartView: View {
                         Text("TIME ASLEEP")
                             .font(.sfRoundedRegular(fontSize: 16))
                         
-//                        if totalDuration != 0 || totalInBed != 0 {
-//                            Text("\(healthStore.formatDuration(totalDuration != 0 ? totalDuration : totalInBed))")
-//                                .font(.sfRoundedBold(fontSize: 32))
-//                                .foregroundColor(Color("PrimaryColor"))
-//                        } else {
-//                            Text("No Data")
-//                                .font(.sfRoundedBold(fontSize: 32))
-//                                .foregroundColor(Color("PrimaryColor"))
-//                        }
+                        if totalDuration != 0 || totalInBed != 0 {
+                            Text("\(healthStore.formatDuration(totalDuration != 0 ? totalDuration : totalInBed))")
+                                .font(.sfRoundedBold(fontSize: 32))
+                                .foregroundColor(Color("PrimaryColor"))
+                        } else {
+                            Text("No Data")
+                                .font(.sfRoundedBold(fontSize: 32))
+                                .foregroundColor(Color("PrimaryColor"))
+                        }
                     }
                     
                     Spacer()

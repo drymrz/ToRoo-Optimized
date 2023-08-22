@@ -64,7 +64,7 @@ struct HomeView: View {
                             }
                         }
                         .onAppear {
-                            healthStore.fetchSleepAnalysisData(Date().startOfDay, Date().endOfDay)
+                            healthStore.requestAuthorization()
                         }
                 }
             }.offset(y: 45)
